@@ -1,0 +1,67 @@
+#!/usr/bin/env perl
+
+use Data::Dumper;
+
+sub source () {
+	local $/;
+	open FP, "< $ARGV[0]";
+	my $file = <FP>;
+	$file;
+}
+
+our %definitions = ();
+
+sub def {
+	my ($line,$no) = @_;
+	if (/\s*def (\w+)/) {
+		$definitions{$1} = [ $no ];
+		return $1
+	}
+	undef;	
+}
+
+sub end {
+	my ($line,$def,$no) = @_;
+	if (/^\s*$/) {
+		push @{$definitions{$def}}, $no;
+		return undef;
+	}
+	$def;
+}
+
+sub fin {
+	push @{$definitions{$_[0]}}, $_[1];
+}
+
+sub parse {
+	my %funs = ();
+	(@lines) = split "\n", $_[0];
+	my $line = 0;
+	my $def = '';
+	for (@lines) {
+		++$line;
+		$def = def($_, $line) || $def;
+		$def = end $_, $def, $line;
+	}
+	fin $def, $line;
+}
+
+sub hist () {
+	my  @counts = ();
+	for (keys %definitions) {
+		++$counts[ $definitions{$_}[1] - $definitions{$_}[0] ];
+	}
+	@counts;
+}
+
+sub plot {
+	my $i = 0;
+	for (hist) {
+		print "$i\t", ($_ || 0), "\n";	
+		++$i;
+	}
+}
+
+parse source;
+plot hist;
+

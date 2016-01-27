@@ -1,0 +1,16 @@
+#!/usr/bin/env gnuplot
+
+set term png
+set output "hist.png"
+set title "Line of Code Frequencies"
+set xlabel "Lines of Code"
+set ylabel "No of Functions"
+set xrange [1:]
+set yrange [0:]
+set auto y
+set style data histogram
+set style histogram cluster gap 1
+set style fill solid border -1
+set boxwidth 0.9
+set xtic rotate by -90 scale 0
+plot '<cat' using 2 notitle
